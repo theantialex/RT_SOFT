@@ -1,0 +1,1 @@
+SUBSYSTEM=="block", ACTION=="add", ATTRS{idVendor}=="0951" SYMLINK+="my_usb", RUN+="/bin/device_added.sh" 
