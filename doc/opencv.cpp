@@ -33,11 +33,21 @@ bool cmpPointY(const cv::Point &a, const cv::Point &b) {
     return a.y < b.y;
 }
 
+static bool stickers_comp(std::vector<cv::Point>& st1, std::vector<cv::Point>& st2) {
+    int first_x = abs((*min_element(st1.begin(), st1.end(), cmpPointX)).x - (*max_element(st1.begin(), st1.end(), cmpPointX)).x);
+    int first_y = abs((*min_element(st1.begin(), st1.end(), cmpPointY)).y - (*max_element(st1.begin(), st1.end(), cmpPointY)).y);
+
+    int sec_x = abs((*min_element(st2.begin(), st2.end(), cmpPointX)).x - (*max_element(st2.begin(), st2.end(), cmpPointX)).x);
+    int sec_y = abs((*min_element(st2.begin(), st2.end(), cmpPointY)).y - (*max_element(st2.begin(), st2.end(), cmpPointY)).y);
+
+    return (first_x * first_y < sec_x * sec_y);
+}
+
 int main() {
     using namespace cv;
     using namespace std;
 
-    VideoCapture cap("prj/ppl2.mp4");
+    VideoCapture cap("circle.mp4");
     if (!cap.isOpened()) {
         return -1;
     }
@@ -53,16 +63,16 @@ int main() {
         }
 
         recogniseStickersByThreshold(frame, stickers);
-        for (auto st : stickers)
-        {
-            cv::Point sticker1; 
-            sticker1.x = (*min_element(st.begin(), st.end(), cmpPointX)).x;
-            sticker1.y = (*min_element(st.begin(), st.end(), cmpPointY)).y;
-            cv::Point sticker2; 
-            sticker2.x = (*max_element(st.begin(), st.end(), cmpPointX)).x;
-            sticker2.y = (*max_element(st.begin(), st.end(), cmpPointY)).y;
-            cv::rectangle(frame, Rect(sticker1, sticker2),cv::Scalar(0,250,0),2);
-        }
+        auto st = max_element(stickers.begin(), stickers.end(), stickers_comp);
+
+        cv::Point sticker1; 
+        sticker1.x = (*min_element((*st).begin(), (*st).end(), cmpPointX)).x;
+        sticker1.y = (*min_element((*st).begin(), (*st).end(), cmpPointY)).y;
+        cv::Point sticker2; 
+        sticker2.x = (*max_element((*st).begin(), (*st).end(), cmpPointX)).x;
+        sticker2.y = (*max_element((*st).begin(), (*st).end(), cmpPointY)).y;
+
+        cv::rectangle(frame, Rect(sticker1, sticker2),cv::Scalar(0,250,0),2);
 
         imshow("Detection", frame); 
         if(waitKey(30) == 27) {
