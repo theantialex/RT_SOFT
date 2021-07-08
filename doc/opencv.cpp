@@ -37,18 +37,14 @@ int main() {
     using namespace cv;
     using namespace std;
 
-    cout << "start" << endl;
     VideoCapture cap("prj/ppl2.mp4");
     if (!cap.isOpened()) {
-        cout << "error" << endl;
         return -1;
     }
     
-    namedWindow("MyVideo",cv::WindowFlags::WINDOW_AUTOSIZE); 
-    cout << "start" << endl;
+    namedWindow("Detection",cv::WindowFlags::WINDOW_AUTOSIZE); 
     std::vector<std::vector<cv::Point>> stickers;
     while(1) {
-        cout << "start" << endl;
         Mat frame;
         bool bSuccess = cap.read(frame); 
         if (!bSuccess) {
@@ -68,7 +64,7 @@ int main() {
             cv::rectangle(frame, Rect(sticker1, sticker2),cv::Scalar(0,250,0),2);
         }
 
-        imshow("MyVideo", frame); 
+        imshow("Detection", frame); 
         if(waitKey(30) == 27) {
             break;
         }
