@@ -47,7 +47,7 @@ int main() {
     using namespace cv;
     using namespace std;
 
-    VideoCapture cap("circle.mp4");
+    VideoCapture cap("prj/circle.mp4");
     if (!cap.isOpened()) {
         return -1;
     }
