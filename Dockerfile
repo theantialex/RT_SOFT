@@ -20,9 +20,22 @@ RUN cd ~/opencv_build/opencv && mkdir build && cd build && cmake -D CMAKE_BUILD_
 
 RUN cd ~/opencv_build/opencv/build && make -j1 && make install
 
+RUN apt install nlohmann-json-dev
+RUN git clone https://github.com/nlohmann/json.git && cd json && cmake -DBuildTests=OFF .
+
+RUN apt-get install -y apt-utils && apt-get install software-properties-common -y
+RUN apt install mosquitto mosquitto-clients -y && apt-get install libmosquitto-dev -y
+RUN apt-add-repository ppa:mosquitto-dev/mosquitto-ppa && apt-get update
+RUN apt-get install libssl-dev && apt-mark hold mosquitto
+RUN apt-get install mosquitto -y --allow-change-held-packages
+
 RUN cd / && mkdir prj
 COPY doc /prj
 RUN cd prj && cmake CMakeLists.txt && make
-CMD prj/open
+
+RUN service mosquitto stop
+RUN chmod +x prj/start.sh
+
+CMD prj/start.sh
 
 

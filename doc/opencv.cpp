@@ -6,6 +6,8 @@
 #include "opencv2/video/tracking.hpp"
 #include <opencv2/highgui.hpp>
 #include <math.h>
+#include <mosquitto.h>
+#include <nlohmann/json.hpp>
 
 
 void recogniseStickersByThreshold(cv::Mat image, std::vector<std::vector<cv::Point>> &stickers) {
@@ -47,9 +49,19 @@ static bool stickers_comp(std::vector<cv::Point>& st1, std::vector<cv::Point>& s
 int main() {
     using namespace cv;
     using namespace std;
+    
+    mosquitto_lib_init();
+    struct mosquitto* client = mosquitto_new("publisher", true, NULL);
+    int connection = mosquitto_connect(client, "localhost", 1883, 60);
+    if (connection != 0) {
+        cout << "No connection" << endl;
+        mosquitto_destroy(client);
+        return -1;
+    }
 
     VideoCapture cap("circle.mp4");
     if (!cap.isOpened()) {
+        cout << "Unable to open video" << endl;
         return -1;
     }
 
@@ -111,6 +123,19 @@ int main() {
         if(waitKey(30) == 27) {
             break;
         }
+
+        nlohmann::json message;
+        message["x1"] = sticker1.x;
+        message["y1"] = sticker1.y;
+        message["x2"] = sticker2.x;
+        message["y2"] = sticker2.y;
+        std::string s = message.dump();
+
+        mosquitto_publish(client, NULL, "detection", s.length(), s.c_str(), 0, false);
     }
+
+    mosquitto_disconnect(client);
+    mosquitto_destroy(client);
+    mosquitto_lib_cleanup();
     return 0;
 }
