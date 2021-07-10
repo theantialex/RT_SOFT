@@ -2,7 +2,7 @@
 Kafka + Docker: broker + producer + consumer  
 
 Команды:
-chxmod +x start.sh
+chxmod +x start.sh  
 ./start.sh
 
 start.sh:
